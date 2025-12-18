@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
+// Define a URL da API (usa a variável de ambiente se existir, senão usa localhost)
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 interface Document {
@@ -26,12 +27,10 @@ interface User {
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   
-  // --- ESTADOS DE LOGIN/CADASTRO ---
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  // --- ESTADOS DO DASHBOARD ---
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
@@ -41,9 +40,7 @@ export default function App() {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // --- EFEITOS ---
   useEffect(() => {
-    // Tenta recuperar sessão salva
     const savedUser = localStorage.getItem('paggo_user');
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
@@ -60,7 +57,6 @@ export default function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // --- FUNÇÕES DE AUTH ---
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -68,7 +64,6 @@ export default function App() {
       const res = await axios.post(`${API_URL}${endpoint}`, { email, password });
 
       if (isLoginMode) {
-        // LOGIN: Salva o usuário e token
         const userData = {
           id: res.data.userId,
           name: res.data.name,
@@ -76,9 +71,8 @@ export default function App() {
         };
         setUser(userData);
         localStorage.setItem('paggo_user', JSON.stringify(userData));
-        fetchDocuments(userData.token); // Já carrega os docs
+        fetchDocuments(userData.token); 
       } else {
-        // REGISTER: Avisa e troca para login
         alert('Conta criada! Faça login agora.');
         setIsLoginMode(true);
       }
@@ -95,11 +89,8 @@ export default function App() {
     setSelectedDoc(null);
   };
 
-  // --- FUNÇÕES DO DASHBOARD ---
   const fetchDocuments = async (token: string) => {
     try {
-      // Nota: Em uma app real, enviaríamos o header Authorization: Bearer token
-      // Mas para o MVP funcionar com o backend atual, vamos listar tudo
       const res = await axios.get(`${API_URL}/documents`);
       setDocuments(res.data);
     } catch (error) {
@@ -113,13 +104,20 @@ export default function App() {
 
     const formData = new FormData();
     formData.append('file', e.target.files[0]);
-    formData.append('userId', user.id); // Usa o ID do usuário logado!
+    // O backend pega o ID do usuário pelo Token JWT agora, mas se seu backend
+    // ainda espera userId no corpo, mantenha essa linha:
+    formData.append('userId', user.id);
 
     try {
-      await axios.post(`${API_URL}/documents/upload`, formData);
+      await axios.post(`${API_URL}/documents/upload`, formData, {
+        headers: {
+          'Authorization': `Bearer ${user.token}` // Garante envio do token
+        }
+      });
       alert('Documento processado com sucesso!');
       fetchDocuments(user.token);
     } catch (error) {
+      console.error(error);
       alert('Erro no upload.');
     } finally {
       setUploading(false);
@@ -167,7 +165,6 @@ export default function App() {
     setChatHistory([]);
   };
 
-  // --- RENDERIZAÇÃO: TELA DE LOGIN ---
   if (!user) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-100">
@@ -207,10 +204,8 @@ export default function App() {
     );
   }
 
-  // --- RENDERIZAÇÃO: DASHBOARD (Se estiver logado) ---
   return (
     <div className="flex h-screen bg-gray-100 font-sans text-gray-800">
-      {/* SIDEBAR */}
       <div className="w-1/3 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-6 border-b border-gray-100">
           <div className="flex justify-between items-center mb-4">
@@ -219,7 +214,13 @@ export default function App() {
           </div>
           <label className={`flex items-center justify-center w-full p-3 rounded-lg border-2 border-dashed cursor-pointer transition-colors ${uploading ? 'bg-gray-100' : 'border-blue-300 hover:bg-blue-50'}`}>
             <span className="text-sm font-semibold text-blue-600">{uploading ? 'Processando...' : '+ Upload Documento'}</span>
-            <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
+            <input 
+              type="file" 
+              accept="image/png, image/jpeg, image/jpg, image/webp"
+              className="hidden" 
+              onChange={handleUpload} 
+              disabled={uploading} 
+            />
           </label>
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -232,7 +233,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* CHAT AREA */}
       <div className="flex-1 flex flex-col">
         {selectedDoc ? (
           <>
