@@ -48,7 +48,7 @@ Installation & Setup:
 
       2 - Run the setup
         bash:
-          hmod +x setup.sh  # Gives permission to execute (Mac/Linux)
+          chmod +x setup.sh  # Gives permission to execute (Mac/Linux)
           ./setup.sh
 
       3 - Follow the terminal prompts.
