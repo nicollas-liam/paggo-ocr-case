@@ -53,10 +53,7 @@ Installation & Setup:
 
       3 - Follow the terminal prompts.
         The script will ask for your Groq API Key. If you don't have one, just press ENTER to use the built-in Demo Key. Made that way for the sake of brevity
-          The application will start should start automatically, if not, access manually:
-
-            Frontend: http://localhost:3001
-            Backend:  http://localhost:3000  
+          The application will start automatically. 
           
     Option 2: Manual Setup
 
@@ -75,12 +72,12 @@ Installation & Setup:
           cd frontend
           npm install
           npm run dev
+            then, Open http://localhost:3001 in your browser.
 
-      3 - Testing the application:
-        Open http://localhost:3001 in your browser.
-        Register a new account (Authentication is required).
-        Upload an image containing text 
-        Click on the document card to open the Chat Interface.
-        Ask questions about the document
-        Click "Download txt" to export the extraction and chat history.
+In this application, you can:
+  Register a new account (Authentication is required).
+  Upload an image containing text 
+  Click on the document card to open the Chat Interface.
+  Ask questions about the document
+  Click "Download txt" to export the extraction and chat history.
 
