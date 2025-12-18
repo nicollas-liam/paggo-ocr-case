@@ -4,18 +4,11 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' 
 
-ENCODED_KEY="Z3NrXzlpV0JOaE1VT01VTTVmblVDOVFxV0dkeWIzRlk0ZkhrUmZZSkhMWnZXSDhZYUVEUTJOUjg="
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    DEMO_KEY=$(echo "$ENCODED_KEY" | base64 -D)
-else
-    DEMO_KEY=$(echo "$ENCODED_KEY" | base64 -d)
-fi
+DEMO_KEY="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"
 
 echo -e "${BLUE}=== INICIANDO CONFIGURAÇÃO AUTOMÁTICA DO PAGGO CASE ===${NC}"
 
 echo -e "\n${GREEN}[1/4] Configurando o Backend...${NC}"
-
 cd backend
 
 if [ ! -f .env ]; then
