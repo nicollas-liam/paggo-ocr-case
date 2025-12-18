@@ -53,7 +53,7 @@ Installation & Setup:
 
       3 - Follow the terminal prompts.
         The script will ask for your Groq API Key. If you don't have one, just press ENTER to use the built-in Demo Key. Made that way for the sake of brevity
-          The application will start automatically:
+          The application will start should start automatically, if not, access manually:
 
             Frontend: http://localhost:3001
             Backend:  http://localhost:3000  

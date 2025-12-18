@@ -20,7 +20,6 @@ fi
 
 npm install
 
-
 if grep -q "OPENAI_API_KEY=\"PLACEHOLDER_KEY\"" .env; then
     echo -e "${BLUE}Configuração da API Key (IA):${NC}"
     echo "Para a IA funcionar, precisamos de uma API Key (Groq ou OpenAI)."
@@ -54,6 +53,9 @@ echo "Tudo pronto!"
 echo -e "\n${BLUE}=== INICIANDO APLICAÇÃO ===${NC}"
 echo "Frontend: http://localhost:3001"
 echo "Backend:  http://localhost:3000"
+echo "Aguarde... o navegador abrirá automaticamente em 5 segundos."
 echo "Pressione Ctrl+C para parar."
+
+(sleep 5 && open "http://localhost:3001" 2>/dev/null || xdg-open "http://localhost:3001" 2>/dev/null || echo "Abra o link manualmente!") &
 
 npx concurrently "cd backend && npm run start:dev" "cd frontend && npm run dev"
