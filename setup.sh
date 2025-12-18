@@ -14,28 +14,24 @@ cd backend
 if [ ! -f .env ]; then
     echo "Criando arquivo .env..."
     cp .env.example .env
-else
-    echo "Arquivo .env já existe."
 fi
 
 npm install
 
-if grep -q "OPENAI_API_KEY=\"PLACEHOLDER_KEY\"" .env; then
-    echo -e "${BLUE}Configuração da API Key (IA):${NC}"
-    echo "Para a IA funcionar, precisamos de uma API Key (Groq ou OpenAI)."
-    echo "Se você não tiver uma, pressione ENTER para usar a chave de demonstração incluída."
-    
-    read -p "Cole sua API Key (ou ENTER para usar Demo): " input_key
-    
-    if [ -z "$input_key" ]; then
-        echo -e "${GREEN}Usando chave de demonstração...${NC}"
-        final_key="$DEMO_KEY"
-    else
-        final_key="$input_key"
-    fi
+echo -e "${BLUE}Configuração da API Key (IA):${NC}"
+echo "Pressione ENTER para usar a chave de demonstração já configurada."
+read -p "Ou cole uma nova chave aqui: " input_key
 
-    sed -i.bak "s/PLACEHOLDER_KEY/$final_key/" .env && rm .env.bak
+if [ -z "$input_key" ]; then
+    echo -e "${GREEN}Usando chave de demonstração...${NC}"
+    final_key="$DEMO_KEY"
+else
+    final_key="$input_key"
 fi
+
+sed -i.bak '/OPENAI_API_KEY=/d' .env && rm .env.bak
+
+echo "OPENAI_API_KEY=\"$final_key\"" >> .env
 
 echo -e "${GREEN}Configurando Banco de Dados...${NC}"
 npx prisma migrate dev --name init
