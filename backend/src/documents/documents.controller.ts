@@ -5,10 +5,7 @@ import {
   UploadedFile, 
   Body, 
   Get, 
-  Param, 
-  ParseFilePipe, 
-  MaxFileSizeValidator, 
-  FileTypeValidator 
+  Param
 } from '@nestjs/common';
 import { DocumentsService } from './documents.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -20,16 +17,14 @@ export class DocumentsController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-          new FileTypeValidator({ fileType: 'image' }), 
-        ],
-      }),
-    ) file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File,
     @Body('userId') userId: string
   ) {
+    console.log('--- UPLOAD RECEBIDO ---');
+    console.log('Arquivo:', file?.originalname);
+    console.log('Tamanho:', file?.size);
+    console.log('UserId:', userId);
+    
     return this.documentsService.create(file, userId);
   }
 

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-// Define a URL da API (usa a variável de ambiente se existir, senão usa localhost)
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 interface Document {
@@ -57,6 +56,14 @@ export default function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const parseJwt = (token: string) => {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -64,14 +71,26 @@ export default function App() {
       const res = await axios.post(`${API_URL}${endpoint}`, { email, password });
 
       if (isLoginMode) {
+        const token = res.data.access_token;
+        const decodedToken = parseJwt(token);
+        const userId = res.data.userId || res.data.id || decodedToken?.sub;
+        const userName = res.data.name || decodedToken?.email || 'Usuário';
+
+        if (!userId) {
+          alert('Erro: ID do usuário não encontrado. Tente registrar novamente.');
+          return;
+        }
+
         const userData = {
-          id: res.data.userId,
-          name: res.data.name,
-          token: res.data.access_token
+          id: userId,
+          name: userName,
+          token: token
         };
+
+        console.log('Login Sucesso. UserData:', userData); 
         setUser(userData);
         localStorage.setItem('paggo_user', JSON.stringify(userData));
-        fetchDocuments(userData.token); 
+        fetchDocuments(token); 
       } else {
         alert('Conta criada! Faça login agora.');
         setIsLoginMode(true);
@@ -104,21 +123,21 @@ export default function App() {
 
     const formData = new FormData();
     formData.append('file', e.target.files[0]);
-    // O backend pega o ID do usuário pelo Token JWT agora, mas se seu backend
-    // ainda espera userId no corpo, mantenha essa linha:
-    formData.append('userId', user.id);
+    formData.append('userId', user.id); 
+
+    console.log('Enviando Upload... ID:', user.id); 
 
     try {
       await axios.post(`${API_URL}/documents/upload`, formData, {
         headers: {
-          'Authorization': `Bearer ${user.token}` // Garante envio do token
+          'Authorization': `Bearer ${user.token}`
         }
       });
       alert('Documento processado com sucesso!');
       fetchDocuments(user.token);
-    } catch (error) {
-      console.error(error);
-      alert('Erro no upload.');
+    } catch (error: any) {
+      console.error('Erro Upload:', error.response?.data || error.message);
+      alert('Erro no upload. Veja o console.');
     } finally {
       setUploading(false);
     }
