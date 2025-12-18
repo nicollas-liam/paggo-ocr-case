@@ -48,8 +48,8 @@ Installation & Setup:
 
       2 - Run the setup
         bash:
-        hmod +x setup.sh  # Gives permission to execute (Mac/Linux)
-        ./setup.sh
+          hmod +x setup.sh  # Gives permission to execute (Mac/Linux)
+          ./setup.sh
 
       3 - Follow the terminal prompts.
         The script will ask for your Groq API Key. If you don't have one, just press ENTER to use the built-in Demo Key. Made that way for the sake of brevity
@@ -71,9 +71,10 @@ Installation & Setup:
           npm run start:dev
       
       2 - Frontend setup: (Open a new terminal window)
-        cd frontend
-        npm install
-        npm run dev
+        bash:
+          cd frontend
+          npm install
+          npm run dev
 
       3 - Testing the application:
         Open http://localhost:3001 in your browser.
